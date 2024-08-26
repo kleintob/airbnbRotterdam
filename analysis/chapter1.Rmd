@@ -23,7 +23,7 @@ check_install_package("ggplot2")
 check_install_package("dplyr")
 ```
 
-We start by loading the data. We create `listings_clean` and `listings_filtered`. The former selects observations with finite prices and review scores, more than 10 received reviews, and a price below 300 USD; the latter selects listings that accommodate 2 people.
+We start by loading the data. Recall that we created `listings_clean` and `listings_clean_accommodates_2`. The former selects observations with finite prices and review scores, more than 10 received reviews, and a price below 300 USD; the latter selects listings that accommodate 2 people.
 
 ```{r}
 # Load data
