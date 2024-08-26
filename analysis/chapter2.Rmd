@@ -1,0 +1,79 @@
+---
+title: 'Chapter 2: simple regression'
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+# This chunk is for initial setup
+knitr::opts_chunk$set(echo = TRUE)
+
+# Function to check and install packages
+check_install_package <- function(pkg) {
+  if (!require(pkg, character.only = TRUE)) {
+    install.packages(pkg)
+    library(pkg, character.only = TRUE)
+  }
+}
+
+# Check and install necessary packages
+check_install_package("stargazer")
+```
+
+We start again by loading the data.
+
+```{r}
+# Load the datasets from the RData file
+load("../dataCreated/listings_clean.RData")
+
+# Display the first few rows of the cleaned dataset
+head(listings_clean)
+```
+
+Regress price on `review_scores_rating`.
+
+```{r}
+# Run a linear regression of price on review_scores_rating
+model <- lm(price ~ review_scores_rating, data = listings_clean)
+
+# Display the summary of the regression model
+summary(model)
+```
+
+Run a regression of price on how many people can be accommodated.
+
+```{r}
+# Run a linear regression of price on accommodates
+model_accommodates <- lm(price ~ accommodates, data = listings_clean)
+
+# Display the summary of the regression model
+summary(model_accommodates)
+```
+
+Now we use the Strgazer package that we loaded in the beginning to produce a nice table with three regression results.
+
+```{r}
+# 1. Run a level-level regression of price on accommodates
+level_level <- lm(price ~ accommodates, data = listings_clean)
+
+# 2. Run a log-level regression of log(price) on accommodates
+log_level <- lm(log(price) ~ accommodates, data = listings_clean)
+
+# 3. Run a log-log regression of log(price) on log(accommodates)
+log_log <- lm(log(price) ~ log(accommodates), data = listings_clean)
+
+# 4. Create a table with stargazer displaying all three results
+stargazer(level_level, log_level, log_log,
+          type = "text",
+          title = "Regression Results",
+          column.labels = c("Level-Level", "Log-Level", "Log-Log"),
+          dep.var.labels = "Price",
+          covariate.labels = c("Accommodates", "Constant"),
+          omit.stat = c("f", "ser"),
+          digits = 3)
+```
+
+
+
