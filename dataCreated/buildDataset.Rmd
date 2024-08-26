@@ -1,0 +1,50 @@
+---
+title: 'Preparation of data'
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+# This chunk is for initial setup
+knitr::opts_chunk$set(echo = TRUE)
+
+# Function to check and install packages
+check_install_package <- function(pkg) {
+  if (!require(pkg, character.only = TRUE)) {
+    install.packages(pkg)
+    library(pkg, character.only = TRUE)
+  }
+}
+
+# Check and install necessary packages
+check_install_package("readr")
+check_install_package("dplyr")
+```
+
+We start by loading the data. We create `listings_clean` and `listings_clean_accommodates_2`. The former selects observations with finite prices and review scores, more than 10 received reviews, and a price below 300 USD; the latter selects in addition listings that accommodate 2 people.
+
+```{r}
+# Import the listings.csv file
+listings <- read_csv("../dataRaw/listings.csv", show_col_types = FALSE)
+
+# Define the columns we want to clean
+columns_to_clean <- c("price", "weekly_price", "monthly_price", 
+                      "security_deposit", "cleaning_fee", "extra_people")
+
+# Identify which of these columns exist in the dataset
+existing_columns <- intersect(columns_to_clean, names(listings))
+
+# Clean and convert relevant columns to numeric and filter out non-finite values
+listings_clean <- listings %>%
+  mutate(across(all_of(existing_columns), ~ as.numeric(gsub("[\\$,]", "", .x)))) %>%
+  filter(is.finite(price), is.finite(review_scores_rating), number_of_reviews > 10, price < 300)
+
+# Filter the cleaned data based on accommodates == 2
+listings_clean_accommodates_2 <- listings_clean %>%
+  filter(accommodates == 2)
+
+save(listings_clean, listings_clean_accommodates_2, file = "listings_clean.RData")
+```
+

@@ -19,7 +19,6 @@ check_install_package <- function(pkg) {
 }
 
 # Check and install necessary packages
-check_install_package("readr")
 check_install_package("ggplot2")
 check_install_package("dplyr")
 ```
@@ -27,24 +26,9 @@ check_install_package("dplyr")
 We start by loading the data. We create `listings_clean` and `listings_filtered`. The former selects observations with finite prices and review scores, more than 10 received reviews, and a price below 300 USD; the latter selects listings that accommodate 2 people.
 
 ```{r}
-# Import the listings.csv file
-listings <- read_csv("../data/listings.csv", show_col_types = FALSE)
-
-# Define the columns we want to clean
-columns_to_clean <- c("price", "weekly_price", "monthly_price", 
-                      "security_deposit", "cleaning_fee", "extra_people")
-
-# Identify which of these columns exist in the dataset
-existing_columns <- intersect(columns_to_clean, names(listings))
-
-# Clean and convert relevant columns to numeric and filter out non-finite values
-listings_clean <- listings %>%
-  mutate(across(all_of(existing_columns), ~ as.numeric(gsub("[\\$,]", "", .x)))) %>%
-  filter(is.finite(price), is.finite(review_scores_rating), number_of_reviews > 10, price < 300)
-
-# Filter the cleaned data based on accommodates == 2
-listings_filtered <- listings_clean %>%
-  filter(accommodates == 2)
+# Load data
+# Load the datasets from the RData file
+load("../dataCreated/listings_clean.RData")
 
 # Display the first few rows of the cleaned dataset
 head(listings_clean)
@@ -82,7 +66,7 @@ Histogram of `price` for those apartments accommodating 2 people.
 ```{r}
 
 # Create the histogram
-ggplot(listings_filtered, aes(x = price)) +
+ggplot(listings_clean_accommodates_2, aes(x = price)) +
   geom_histogram(binwidth = 10, fill = "blue", color = "black", alpha = 0.7) +
   labs(
     title = "Histogram of Price for Listings that Accommodate 2 People",
@@ -96,7 +80,7 @@ What is the empirical relationship between the price and the review score for an
 
 ```{r}
 # Create the scatter plot
-ggplot(listings_filtered, aes(x = review_scores_rating, y = price)) +
+ggplot(listings_clean_accommodates_2, aes(x = review_scores_rating, y = price)) +
   geom_point(alpha = 0.6) +
   labs(
     title = "Scatter Plot of Price vs. Review Scores Rating (Accommodates 2)",
@@ -110,7 +94,7 @@ Or at a correlation.
 
 ```{r}
 # Calculate the correlation between price and review_scores_rating
-correlation <- cor(listings_filtered$price, listings_filtered$review_scores_rating, use = "complete.obs")
+correlation <- cor(listings_clean_accommodates_2$price, listings_clean_accommodates_2$review_scores_rating, use = "complete.obs")
 
 # Display the correlation
 correlation
@@ -120,7 +104,7 @@ How does the price for an apartment that accommodates 2 vary by neighborhood?
 
 ```{r}
 # Create a summary table with the average price for each neighborhood
-neighborhood_price_summary <- listings_filtered %>%
+neighborhood_price_summary <- listings_clean_accommodates_2 %>%
   group_by(neighbourhood) %>%
   summarise(average_price = round(mean(price, na.rm = TRUE), 2)) %>%
   arrange(neighbourhood)
