@@ -20,6 +20,11 @@ check_install_package <- function(pkg) {
 
 # Check and install necessary packages
 check_install_package("stargazer")
+check_install_package("dplyr")
+
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)  # for data manipulation
 ```
 
 We start again by loading the data.
@@ -32,11 +37,18 @@ load("../dataCreated/listings_clean.RData")
 head(listings_clean)
 ```
 
+Filter the data so that we use only listings for at most 6 people. From now on use this
+
+```{r}
+listings_clean_filtered <- listings_clean %>%
+  filter(accommodates <= 6)
+```
+
 Regress price on `review_scores_rating`.
 
 ```{r}
 # Run a linear regression of price on review_scores_rating
-model <- lm(price ~ review_scores_rating, data = listings_clean)
+model <- lm(price ~ review_scores_rating, data = listings_clean_filtered)
 
 # Display the summary of the regression model
 summary(model)
@@ -46,23 +58,94 @@ Run a regression of price on how many people can be accommodated.
 
 ```{r}
 # Run a linear regression of price on accommodates
-model_accommodates <- lm(price ~ accommodates, data = listings_clean)
+model_accommodates <- lm(price ~ accommodates, data = listings_clean_filtered)
 
 # Display the summary of the regression model
 summary(model_accommodates)
 ```
 
-Now we use the Strgazer package that we loaded in the beginning to produce a nice table with three regression results.
+On slide 21, we have said that the sample moment conditions immediately imply that:
+1. the average residual is zero
+2. the average covariance between the residual and the regressor is zero
+3. the regression line goes through the average of the dependent variable and the regressor.
+
+We now verify this.
+
+```{r}
+# 1. Verify that the average residual is zero
+residuals_accommodates <- residuals(model_accommodates)
+mean_residuals <- mean(residuals_accommodates)
+cat("1. Average of residuals:", mean_residuals, "\n")
+
+# 2. Verify that the average covariance between the residual and the regressor (accommodates) is zero
+cov_residuals_regressor <- cov(residuals_accommodates, listings_clean_filtered$accommodates)
+cat("2. Covariance between residuals and accommodates:", cov_residuals_regressor, "\n")
+
+# 3. Verify that the regression line goes through the averages of the dependent variable and the regressor
+mean_price <- mean(listings_clean_filtered$price)
+mean_accommodates <- mean(listings_clean_filtered$accommodates)
+
+# Calculate the predicted price at the average of accommodates
+predicted_price_at_mean <- coef(model_accommodates)[1] + coef(model_accommodates)[2] * mean_accommodates
+
+cat("3. Average price:", mean_price, "\n")
+cat("   Predicted price at average accommodates:", predicted_price_at_mean, "\n")
+```
+
+We have also said that the total sum of squares for the dependent variable is equal to the explained sum of squares plus the residual sum of squares. We can also verify this.
+
+```{r}
+# 1. Calculate the Total Sum of Squares (TSS)
+mean_price <- mean(listings_clean_filtered$price)
+TSS <- sum((listings_clean_filtered$price - mean_price)^2)
+cat("Total Sum of Squares (TSS):", TSS, "\n")
+
+# 2. Calculate the Residual Sum of Squares (RSS)
+RSS <- sum(residuals_accommodates^2)
+cat("Residual Sum of Squares (RSS):", RSS, "\n")
+
+# 3. Calculate the Explained Sum of Squares (ESS)
+# ESS is the difference between TSS and RSS
+ESS <- TSS - RSS
+cat("Explained Sum of Squares (ESS):", ESS, "\n")
+
+# 4. Verify that TSS = ESS + RSS
+cat("TSS == ESS + RSS:", TSS == (ESS + RSS), "\n")
+```
+
+From this we can also compute the $R^2$ measure by hand.
+
+```{r}
+# 1. Calculate Total Sum of Squares (TSS)
+mean_price <- mean(listings_clean_filtered$price)
+TSS <- sum((listings_clean_filtered$price - mean_price)^2)
+
+# 2. Calculate Residual Sum of Squares (RSS)
+RSS <- sum(residuals_accommodates^2)
+
+# 3. Calculate Explained Sum of Squares (ESS)
+ESS <- TSS - RSS
+
+# 4. Calculate R^2 using the formula R^2 = ESS / TSS or 1 - RSS / TSS
+R_squared <- 1 - (RSS / TSS)
+
+# Display the result
+cat("R^2 (by hand):", R_squared, "\n")
+```
+
+It is the same as above in the regressian output (which of course has to be the case)!
+
+Next we use the Stargazer package that we loaded in the beginning to produce a nice table with regression results for three different specifications. See slide 24 for details.
 
 ```{r}
 # 1. Run a level-level regression of price on accommodates
-level_level <- lm(price ~ accommodates, data = listings_clean)
+level_level <- lm(price ~ accommodates, data = listings_clean_filtered)
 
 # 2. Run a log-level regression of log(price) on accommodates
-log_level <- lm(log(price) ~ accommodates, data = listings_clean)
+log_level <- lm(log(price) ~ accommodates, data = listings_clean_filtered)
 
 # 3. Run a log-log regression of log(price) on log(accommodates)
-log_log <- lm(log(price) ~ log(accommodates), data = listings_clean)
+log_log <- lm(log(price) ~ log(accommodates), data = listings_clean_filtered)
 
 # 4. Create a table with stargazer displaying all three results
 stargazer(level_level, log_level, log_log,
@@ -73,6 +156,49 @@ stargazer(level_level, log_level, log_log,
           covariate.labels = c("Accommodates", "Constant"),
           omit.stat = c("f", "ser"),
           digits = 3)
+```
+
+Finally, we produce a figure with the data points and the three fitted regression lines.
+
+```{r}
+# 1. Create a new data frame with predictions
+listings_clean_filtered$pred_level_level <- predict(level_level, newdata = listings_clean_filtered)
+listings_clean_filtered$pred_log_level <- exp(predict(log_level, newdata = listings_clean_filtered))
+listings_clean_filtered$pred_log_log <- exp(predict(log_log, newdata = listings_clean_filtered))
+
+# 2. Calculate the average price for each value of accommodates
+avg_prices <- listings_clean_filtered %>%
+  group_by(accommodates) %>%
+  summarise(avg_price = mean(price))
+
+# 3. Scatter plot of the actual data (price vs accommodates)
+p <- ggplot(listings_clean_filtered, aes(x = accommodates, y = price)) +
+  geom_point(alpha = 0.5) +
+  labs(title = "Estimated Empirical Relationships",
+       x = "Accommodates",
+       y = "Price") +
+  theme_minimal()
+
+# 4. Add the fitted values from the level-level model
+p <- p + geom_line(aes(y = pred_level_level, color = "Level-Level"), linewidth = 1)
+
+# 5. Add the fitted values from the log-level model
+p <- p + geom_line(aes(y = pred_log_level, color = "Log-Level"), size = 1)
+
+# 6. Add the fitted values from the log-log model
+p <- p + geom_line(aes(y = pred_log_log, color = "Log-Log"), size = 1)
+
+# 7. Add the average price for each accommodates value as red squares
+p <- p + geom_point(data = avg_prices, aes(x = accommodates, y = avg_price), 
+                    color = "red", shape = 15, size = 3)
+
+# 8. Add legend and show the plot
+p <- p + scale_color_manual(name = "Model",
+                            values = c("Level-Level" = "blue", "Log-Level" = "green", "Log-Log" = "red"))
+
+# Display the plot
+print(p)
+
 ```
 
 
