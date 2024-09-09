@@ -1,0 +1,59 @@
+---
+title: 'Chapter 3: multiple regression'
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+# This chunk is for initial setup
+knitr::opts_chunk$set(echo = TRUE)
+
+# Function to check and install packages
+check_install_package <- function(pkg) {
+  if (!require(pkg, character.only = TRUE)) {
+    install.packages(pkg)
+    library(pkg, character.only = TRUE)
+  }
+}
+
+# Check and install necessary packages
+check_install_package("stargazer")
+check_install_package("dplyr")
+
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)  # for data manipulation
+```
+
+We start again by loading the data.
+
+```{r}
+# Load the datasets from the RData file
+load("../dataCreated/listings_clean.RData")
+
+# Display the first few rows of the cleaned dataset
+head(listings_clean)
+```
+
+Filter the data so that we use only listings for at most 6 people. From now on use this
+
+```{r}
+listings_clean_filtered <- listings_clean %>%
+  filter(accommodates <= 6)
+```
+
+Regress price on `review_scores_rating` and on `accommodates`.
+
+```{r}
+model <- lm(log(price) ~ review_scores_rating + accommodates, data = listings_clean_filtered)
+summary(model)
+```
+
+```{r}
+model <- lm(accommodates ~ review_scores_rating, data = listings_clean_filtered)
+summary(model)
+```
+
+
