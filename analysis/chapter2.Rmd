@@ -151,14 +151,14 @@ log_log <- lm(log(price) ~ log(accommodates), data = listings_clean_filtered)
 stargazer(level_level, log_level, log_log,
           type = "text",
           title = "Regression Results",
-          column.labels = c("Level-Level", "Log-Level", "Log-Log"),
-          dep.var.labels = "Price",
-          covariate.labels = c("Accommodates", "Constant"),
+          column.labels = c("level-level", "log-level", "log-log"),
+          dep.var.labels = "price",
+          covariate.labels = c("accommodates", "log(accommodates)", "constant"),
           omit.stat = c("f", "ser"),
           digits = 3)
 ```
 
-Finally, we produce a figure with the data points and the three fitted regression lines.
+Finally, we produce a figure with the data points and the three fitted regression lines.^[Here, we ignore an issue that the 7th edition of Wooldrige's book discusses on p. 206ff. In brief, the issue is that the predicted value of the dependent variable is not the expenential function evaluated at the fitted value when the dependent variable in the regression was in log form. We ignore this issue here for simplicity.]
 
 ```{r}
 # 1. Create a new data frame with predictions
@@ -180,21 +180,21 @@ p <- ggplot(listings_clean_filtered, aes(x = accommodates, y = price)) +
   theme_minimal()
 
 # 4. Add the fitted values from the level-level model
-p <- p + geom_line(aes(y = pred_level_level, color = "Level-Level"), linewidth = 1)
+p <- p + geom_line(aes(y = pred_level_level, color = "level-level"), linewidth = 1)
 
 # 5. Add the fitted values from the log-level model
-p <- p + geom_line(aes(y = pred_log_level, color = "Log-Level"), size = 1)
+p <- p + geom_line(aes(y = pred_log_level, color = "log-level"), linewidth = 1)
 
 # 6. Add the fitted values from the log-log model
-p <- p + geom_line(aes(y = pred_log_log, color = "Log-Log"), size = 1)
+p <- p + geom_line(aes(y = pred_log_log, color = "log-log"), linewidth = 1)
 
 # 7. Add the average price for each accommodates value as red squares
 p <- p + geom_point(data = avg_prices, aes(x = accommodates, y = avg_price), 
                     color = "red", shape = 15, size = 3)
 
 # 8. Add legend and show the plot
-p <- p + scale_color_manual(name = "Model",
-                            values = c("Level-Level" = "blue", "Log-Level" = "green", "Log-Log" = "red"))
+p <- p + scale_color_manual(name = "model",
+                            values = c("level-level" = "blue", "log-level" = "green", "log-log" = "red"))
 
 # Display the plot
 print(p)
