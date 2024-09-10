@@ -29,6 +29,15 @@ We start by loading the data. We create `listings_clean` and `listings_clean_acc
 # Import the listings.csv file
 listings <- read_csv("../dataRaw/listings.csv", show_col_types = FALSE)
 
+# Load neighborhood ratings produced in chatGPT.Rmd
+neighborhood_ratings <- read.csv("complete_rotterdam_neighborhood_ratings.csv")
+
+# Rename the 'Neighborhood' column in neighborhood_ratings to 'neighbourhood_cleansed'
+colnames(neighborhood_ratings)[colnames(neighborhood_ratings) == "Neighborhood"] <- "neighbourhood_cleansed"
+
+# Merge the datasets on the 'neighbourhood_cleansed' column
+listings <- merge(listings, neighborhood_ratings, by = "neighbourhood_cleansed", all.x = TRUE)
+
 # Define the columns we want to clean
 columns_to_clean <- c("price", "weekly_price", "monthly_price", 
                       "security_deposit", "cleaning_fee", "extra_people")

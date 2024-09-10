@@ -47,7 +47,7 @@ listings_clean_filtered <- listings_clean %>%
 Regress price on `review_scores_rating` and on `accommodates`.
 
 ```{r}
-model <- lm(log(price) ~ review_scores_rating + accommodates, data = listings_clean_filtered)
+model <- lm(log(price) ~ review_scores_rating + accommodates + Centrality + Quietness + Coolness + Fanciness, data = listings_clean_filtered)
 summary(model)
 ```
 

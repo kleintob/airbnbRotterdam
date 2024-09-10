@@ -1,0 +1,55 @@
+---
+title: 'Let chatGPT collect more data'
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+# This chunk is for initial setup
+knitr::opts_chunk$set(echo = TRUE)
+
+# Function to check and install packages
+check_install_package <- function(pkg) {
+  if (!require(pkg, character.only = TRUE)) {
+    install.packages(pkg)
+    library(pkg, character.only = TRUE)
+  }
+}
+
+# Check and install necessary packages
+check_install_package("readr")
+check_install_package("dplyr")
+```
+
+We start by loading the data.
+
+```{r}
+# Import the listings.csv file
+listings <- read_csv("../dataRaw/listings.csv", show_col_types = FALSE)
+```
+
+We will ask chatGPT to gather some data. For this, we first need to export a list with the names of all neighborhoods.
+
+```{r}
+# Extract unique neighborhood names
+unique_neighbourhoods <- unique(listings$neighbourhood_cleansed)
+
+# Write to a CSV file
+write.csv(unique_neighbourhoods, "unique_neighbourhoods.csv", row.names = FALSE)
+```
+
+Then we ask chatGPT with a prompt like this to collect some information:
+
+  I have a CSV file containing the names of neighborhoods in the city of Rotterdam. I’d like you to gather detailed information for each neighborhood and assign ratings (on a scale from 0 to 10) for the following variables:
+  
+  Neighborhood Coolness: How attractive the neighborhood is to people aged 20-30.
+  Neighborhood Centrality: How centrally located the neighborhood is within the city.
+  Neighborhood Quietness: How quiet the neighborhood is at night.
+  Neighborhood Fanciness: The level of sophistication and quality of shops in the area.
+  Please provide unique ratings for each neighborhood based on research, avoiding placeholder values.
+  
+  Please return results in a markdown file.
+
+The result is in the file `complete_rotterdam_neighborhood_ratings.csv`.
