@@ -1,9 +1,9 @@
 ---
 title: 'Chapter 3: multiple regression'
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -44,7 +44,7 @@ listings_clean_filtered <- listings_clean %>%
   filter(accommodates <= 6) 
 ```
 
-We also create with the standardized review score.
+We also create a variable `review_scores_rating_standardized` with the standardized review score. This helps with the interpretation.
 
 ```{r}
 # Standardize review_scores_rating
@@ -54,95 +54,112 @@ listings_clean_filtered <- listings_clean_filtered %>%
            sd(review_scores_rating, na.rm = TRUE))
 ```
 
-We want to understand what leads to good ratings. Our idea is that better places are also more expensive, so a high price should predict better ratings.
-
-Let's start with two histograms, so that we understand how our variables look:
+We still want to understand what prices depend on. We start with a simple model where we regress the log of the price on the standardized rating.
 
 ```{r}
-# Histogram of the price with mean and standard deviation
-ggplot(listings_clean_filtered, aes(x = price)) +
-  geom_histogram(binwidth = 10, fill = "blue", color = "black") +
-  labs(title = "Histogram of Price", x = "Price", y = "Frequency") +
-  geom_vline(aes(xintercept = mean(price, na.rm = TRUE)), 
-             color = "red", linetype = "dashed") +
-  annotate("text", x = mean(listings_clean_filtered$price, na.rm = TRUE), 
-           y = 10, label = paste("Mean =", round(mean(listings_clean_filtered$price, na.rm = TRUE), 2)), 
-           vjust = -1) +
-  annotate("text", x = mean(listings_clean_filtered$price, na.rm = TRUE), 
-           y = 8, label = paste("SD =", round(sd(listings_clean_filtered$price, na.rm = TRUE), 2)), 
-           vjust = -1)
-
-# Histogram of the review_scores_rating with 10 bins, mean, and standard deviation
-ggplot(listings_clean_filtered, aes(x = review_scores_rating)) +
-  geom_histogram(bins = 10, fill = "blue", color = "black") +
-  labs(title = "Histogram of Review Scores Rating", x = "Review Scores Rating", y = "Frequency") +
-  geom_vline(aes(xintercept = mean(review_scores_rating, na.rm = TRUE)), 
-             color = "red", linetype = "dashed") +
-  annotate("text", x = mean(listings_clean_filtered$review_scores_rating, na.rm = TRUE), 
-           y = 10, label = paste("Mean =", round(mean(listings_clean_filtered$review_scores_rating, na.rm = TRUE), 2)), 
-           vjust = -1) +
-  annotate("text", x = mean(listings_clean_filtered$review_scores_rating, na.rm = TRUE), 
-           y = 8, label = paste("SD =", round(sd(listings_clean_filtered$review_scores_rating, na.rm = TRUE), 2)), 
-           vjust = -1)
-```
-
-We start with a simple model where we regress the rating on the price.
-
-```{r}
-model1 <- lm(review_scores_rating ~ price, data = listings_clean_filtered)
+model1 <- lm(log(price) ~ review_scores_rating_standardized, data = listings_clean_filtered)
 summary(model1)
 coef_model1 <- coef(model1)  # save coefficients
 ```
 
-That says that a place that for a place that costs 58 dollars more per night (that's one standard deviation of the price, see first histogram above) we can expect a rating that is about 0.0001899*58 = 0.011 higher. This is a relatively small effect (recall from the second histogram above that ratings have a standard deviation of 0.21).
+That says that for a place that has a rating that is one standard deviation higher we can expect to pay a price that is 2.3 percent higher.
 
-However, we also recall that earlier, we have already found out that the price is highly correlated with how many people can stay in an apartment. Earlier, we have regressed the price on `accommodates`. But we can also do the reverse, regress `accommodates` on `price`.
+However, we also recall that earlier, we have already found out that the price is highly correlated with how many people can stay in an apartment (we found a coefficient of 0.21 in a regression of log price on `accommodates'). So maybe that plays a role, too.
+
+To find out, we carry out a multiple regression where we regress the log of the price on both the standardized rating and how many people can stay in it.
 
 ```{r}
-model2 <- lm(accommodates ~ price, data = listings_clean_filtered)
+model2 <- lm(log(price) ~ review_scores_rating_standardized + accommodates, data = listings_clean_filtered)
 summary(model2)
 coef_model2 <- coef(model2)  # save coefficients
 ```
 
-We see that if one additional person can stay in a place, then we can expect a price that is about 25 dollars higher per night. So the question is whether `accommodates` also has an influence on the rating. Maybe apartments where more people can stay in are a bit less fancy and therefore the rating is lower?
+This now shows that the predicted price increases even more when the standardized rating increases by one unit, about 4.6 percent. We also see that if one additional person can stay in a place, then we can expect a price that is about 21 percent higher per night (this is similar to what we found in the Chapter 2 analysis before when we regressed the log price on `accommodates').
 
-To find out, we estimate a model where we regress `review_scores_rating` on `price` and `accommodates`.
+To explain why the coefficient on `review_scores_rating_standardized` changes, we regress `accommodates` on `review_scores_rating_standardized`.
 
 ```{r}
-model3 <- lm(review_scores_rating ~ price + accommodates, data = listings_clean_filtered)
+model3 <- lm(accommodates ~ review_scores_rating_standardized, data = listings_clean_filtered)
 summary(model3)
 coef_model3 <- coef(model3)  # save coefficients
 ```
 
-This now shows that the coefficient on price increases from 0.0001899 to 0.0005146. This is still a relatively modest effect size. A one standard deviation increase in the price (58 dollars) leads to a 0.0005146*58/0.21 = 0.14 standard deviation increase in the predicted rating.
+This shows that places with a better rating, on average, accommodate less people.
 
-In the lecture, we have learned that from that from the results in `model2` and `model3`, we can reconstruct what we found in `model1`.
+In the lecture, we have learned that from the results in `model2` and `model3`, we can reconstruct what we found in `model1`.
 
-In `model1`, we look at the change in the prediction when `price` changes (and there are no other variables in the model. In `model2`, we see that when price changes by one unit, then `accommodates` is predicted to change by 0.0121303 units. But we know from `model3` that when `accommodates` changes by one unit, we predict the rating to be lower by -0.0267614 units when we hold the price fixed (ceteris paribus). So, we can go from `model3` to `model1` by saying that the predicted change in the rating when the price changes by one unit is the ceteris paribus effect of a price change, 0.0005146, plus how much we predict `accommodates` to change, 0.0121303, times the ceteris paribus effect of `accommodates`, -0.0267614.
+In `model1`, we look at the change in the predicted price when `review_scores_rating_standardized` changes by one unit (and there are no other variables in the model). In `model3`, we see that when `review_scores_rating_standardized` changes by one unit, then `accommodates` is predicted to change by -0.10587 units. But we know from `model2` that when `accommodates` changes by one unit, we predict the log price to be higher by 0.21285 units when we hold the rating fixed (ceteris paribus).
+
+So, we can go from `model2` to `model1` by saying that the predicted change in the log price when the rating changes by one standard deviation is the ceteris paribus effect of a change in `review_scores_rating_standardized', 0.04554, plus how much we predict `accommodates` to change when `review_scores_rating_standardized` changes by one unit, -0.10587, times the ceteris paribus effect of `accommodates`, 0.21285.
+
+Here is some R code that does this calculation:
 
 ```{r}
 # Extract coefficients from model3 and model2
-coef_price_model3 <- coef(model3)["price"]
-coef_accommodates_model3 <- coef(model3)["accommodates"]
-coef_price_model2 <- coef(model2)["price"]
+coef_rating_model2 <- coef(model2)["review_scores_rating_standardized"]
+coef_accommodates_model2 <- coef(model2)["accommodates"]
+coef_rating_model3 <- coef(model3)["review_scores_rating_standardized"]
 
 # Calculate the desired value
-result <- coef_price_model3 + coef_accommodates_model3 * coef_price_model2
+result <- coef_rating_model2 + coef_rating_model3*coef_accommodates_model2
 
 # Print the result
-result
+round(result,5)
 ```
 
-Finally, we estimate a richer model where we regress `review_scores_rating` on `price`, `accommodates`, and 4 neighborhood characteristics.
+This is the coefficient on `review_scores_rating_standardized` in `model1`.
+
+Finally, we also make use of data on some neighborhood characteristics. These neighborhood characterstics were generated by chatGPT and are on a scale from 0 to 10. I've merged them with the web-scraped Airbnb data when I read in the data set. See build code for details.
+
+Let's first look at some summary statistics.
 
 ```{r}
-model4 <- lm(review_scores_rating ~ price + accommodates + Centrality + Quietness + Coolness + Fanciness, data = listings_clean_filtered)
-summary(model)
+# Calculate means and standard deviations for the four variables
+summary_stats <- listings_clean_filtered %>%
+  summarise(
+    Centrality_Mean = mean(Centrality, na.rm = TRUE),
+    Centrality_SD = sd(Centrality, na.rm = TRUE),
+    Quietness_Mean = mean(Quietness, na.rm = TRUE),
+    Quietness_SD = sd(Quietness, na.rm = TRUE),
+    Coolness_Mean = mean(Coolness, na.rm = TRUE),
+    Coolness_SD = sd(Coolness, na.rm = TRUE),
+    Fanciness_Mean = mean(Fanciness, na.rm = TRUE),
+    Fanciness_SD = sd(Fanciness, na.rm = TRUE)
+  )
+
+# Reshape to have one column for means and another for standard deviations
+summary_stats_tidy <- data.frame(
+  Variable = c("Centrality", "Quietness", "Coolness", "Fanciness"),
+  Mean = c(summary_stats$Centrality_Mean, summary_stats$Quietness_Mean, summary_stats$Coolness_Mean, summary_stats$Fanciness_Mean),
+  SD = c(summary_stats$Centrality_SD, summary_stats$Quietness_SD, summary_stats$Coolness_SD, summary_stats$Fanciness_SD)
+)
+
+# Display the table
+summary_stats_tidy
 ```
 
-Finally, we turn this around and go back to putting the log of price on the left hand side.
+We estimate a richer model where we regress the log price on `review_scores_rating`, `accommodates`, and 4 neighborhood characteristics. 
 
 ```{r}
-model5 <- lm(log(price) ~ review_scores_rating_standardized + accommodates + Centrality + Quietness + Coolness + Fanciness, data = listings_clean_filtered)
-summary(model5)
+model4 <- lm(log(price) ~ review_scores_rating_standardized + accommodates + Centrality + Quietness + Coolness + Fanciness, data = listings_clean_filtered)
+summary(model4)
 ```
+
+This shows that prices are predicted to be higher when chatGPT rates the neighborhood more central, more quiet, more cool, and less fancy. This calls for more analysis.
+
+As a first step, let's look at the list that has the highest value of `Fanciness`:
+
+```{r}
+# Get the top 10 unique neighborhoods with the highest Fanciness values
+top_neighborhoods_unique <- listings_clean_filtered %>%
+  distinct(neighbourhood_cleansed, .keep_all = TRUE) %>%
+  arrange(desc(Fanciness)) %>%
+  select(neighbourhood_cleansed, Fanciness) %>%
+  head(10)
+
+# Print the list
+top_neighborhoods_unique
+```
+
+At this point, it's unclear why `Fanciness` should lead to lower predicted prices. Feel free to do some analysis and let me know if you find out what could explain this!
+

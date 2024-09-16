@@ -74,11 +74,11 @@ We now verify this.
 ```{r}
 # 1. Verify that the average residual is zero
 residuals_accommodates <- residuals(model_accommodates)
-mean_residuals <- mean(residuals_accommodates)
+mean_residuals <- round(mean(residuals_accommodates),5)
 cat("1. Average of residuals:", mean_residuals, "\n")
 
 # 2. Verify that the average covariance between the residual and the regressor (accommodates) is zero
-cov_residuals_regressor <- cov(residuals_accommodates, listings_clean_filtered$accommodates)
+cov_residuals_regressor <- round(cov(residuals_accommodates, listings_clean_filtered$accommodates),5)
 cat("2. Covariance between residuals and accommodates:", cov_residuals_regressor, "\n")
 
 # 3. Verify that the regression line goes through the averages of the dependent variable and the regressor
@@ -130,7 +130,7 @@ ESS <- TSS - RSS
 R_squared <- 1 - (RSS / TSS)
 
 # Display the result
-cat("R^2 (by hand):", R_squared, "\n")
+cat("R^2 (by hand):", round(R_squared,4), "\n")
 ```
 
 It is the same as above in the regressian output (which of course has to be the case)!
