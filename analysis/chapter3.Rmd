@@ -90,7 +90,7 @@ In the lecture, we have learned that from the results in `model2` and `model3`, 
 
 In `model1`, we look at the change in the predicted price when `review_scores_rating_standardized` changes by one unit (and there are no other variables in the model). In `model3`, we see that when `review_scores_rating_standardized` changes by one unit, then `accommodates` is predicted to change by -0.10587 units. But we know from `model2` that when `accommodates` changes by one unit, we predict the log price to be higher by 0.21285 units when we hold the rating fixed (ceteris paribus).
 
-So, we can go from `model2` to `model1` by saying that the predicted change in the log price when the rating changes by one standard deviation is the ceteris paribus effect of a change in `review_scores_rating_standardized', 0.04554, plus how much we predict `accommodates` to change when `review_scores_rating_standardized` changes by one unit, -0.10587, times the ceteris paribus effect of `accommodates`, 0.21285.
+So, we can go from `model2` to `model1` by saying that the predicted change in the log price when the rating changes by one standard deviation is the ceteris paribus effect of a change in `review_scores_rating_standardized`, 0.04554, plus how much we predict `accommodates` to change when `review_scores_rating_standardized` changes by one unit, -0.10587, times the ceteris paribus effect of `accommodates`, 0.21285.
 
 Here is some R code that does this calculation:
 
