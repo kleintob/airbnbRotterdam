@@ -1,9 +1,9 @@
 ---
 title: 'Chapter 4: inference'
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -128,7 +128,6 @@ We can also draw the distribution of the test statistic under the null, the valu
 test_stat <- t_stat_centrality  # Replace with the calculated t-statistic
 
 # Generate values for the t-distribution
-df <- 100  # Example degrees of freedom, replace with actual df from your model
 x_vals <- seq(-4, 4, length = 1000)
 y_vals <- dt(x_vals, df)
 
@@ -184,7 +183,6 @@ Here is the corresponding plot.
 test_stat <- t_stat_centrality  # Replace with the calculated t-statistic
 
 # Generate values for the t-distribution
-df <- 100  # Example degrees of freedom, replace with actual df from your model
 x_vals <- seq(-4, 4, length = 1000)
 y_vals <- dt(x_vals, df)
 
@@ -314,8 +312,8 @@ data <- data.frame(x = x_vals, y = y_vals)
 ggplot(data, aes(x = x, y = y)) +
   geom_line(color = "black", linewidth = 1) +  # density line in black
   geom_area(data = subset(data, x > critical_value_f), aes(y = y), fill = "gray", alpha = 0.5) +  # rejection region
-  labs(title = "f-distribution with critical value, test statistic, and p-value", 
-       x = "f-statistic", y = "density") +
+  labs(title = "F-distribution with critical value, test statistic, and p-value", 
+       x = "F-statistic", y = "density") +
   geom_vline(xintercept = critical_value_f, linetype = "solid", color = "black", linewidth = 0.5) +  # critical value
   geom_vline(xintercept = F_stat, linetype = "solid", color = "red", linewidth = 1) +  # test statistic in red
   annotate("text", x = critical_value_f + 0.1, y = 0.1, label = paste("critical value:", format(round(critical_value_f, 3), nsmall = 3)), color = "black") +
