@@ -1,9 +1,9 @@
 ---
 title: 'Chapter 4: inference'
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -58,11 +58,18 @@ In Chapter 4, we assume normality of the error term. To check whether this is (a
 # Calculate residuals
 residualsFullModel <- residuals(estimatesFullModel)
 
-# Plot the density of the residuals
-plot(density(residualsFullModel), main = "Density of Residuals", xlab = "Residuals", ylab = "Density")
+# Find the maximum absolute value of the residuals
+max_abs_residual <- max(abs(residualsFullModel))
+
+# Plot the density of the residuals, setting the x-axis limits symmetrically around 0
+plot(density(residualsFullModel), 
+     main = "density of residuals (black) and normal distribution (blue)", 
+     xlab = "residuals", 
+     ylab = "density", 
+     xlim = c(-max_abs_residual, max_abs_residual))  # Symmetric x-axis limits
 
 # Superimpose a normal distribution
-x_vals <- seq(min(residualsFullModel), max(residualsFullModel), length = 100)
+x_vals <- seq(-max_abs_residual, max_abs_residual, length = 100)
 y_vals <- dnorm(x_vals, mean = mean(residualsFullModel), sd = sd(residualsFullModel))
 lines(x_vals, y_vals, col = "blue", lwd = 2)
 ```
@@ -143,14 +150,15 @@ ggplot(data, aes(x = x, y = y)) +
   geom_line(color = "black", linewidth = 1) +  # density line in black
   geom_area(data = subset(data, x < -critical_value), aes(y = y), fill = "gray", alpha = 0.5) +  # left rejection region
   geom_area(data = subset(data, x > critical_value), aes(y = y), fill = "gray", alpha = 0.5) +  # right rejection region
-  labs(title = "t-distribution with two-sided rejection region", 
+  labs(title = expression("t-distribution with two-sided rejection region"),  # Math 't'
        x = "t-statistic", y = "density") +
   geom_vline(xintercept = -critical_value, linetype = "solid", color = "black", linewidth = 0.5) +  # left critical value
   geom_vline(xintercept = critical_value, linetype = "solid", color = "black", linewidth = 0.5) +  # right critical value
   geom_vline(xintercept = test_stat, linetype = "solid", color = "red", linewidth = 1) +  # test statistic line in red
-  annotate("text", x = -critical_value - 0.2, y = 0.05, label = paste("critical value:", round(-critical_value, 2)), color = "black") +
-  annotate("text", x = critical_value + 0.2, y = 0.05, label = paste("critical value:", round(critical_value, 2)), color = "black") +
-  annotate("text", x = test_stat + 0.2, y = 0.1, label = paste("test statistic:", round(test_stat, 2)), color = "red") +  # test statistic label in red
+  # Adjusting the position of the annotations:
+  annotate("text", x = -critical_value - 1.0, y = 0.2, label = paste("critical value:", round(-critical_value, 2)), color = "black") +  # move left critical value to the right
+  annotate("text", x = critical_value + 1.0, y = 0.2, label = paste("critical value:", round(critical_value, 2)), color = "black") +  # move right critical value to the left
+  annotate("text", x = test_stat + 1.0, y = 0.1, label = paste("test statistic:", round(test_stat, 2)), color = "red") +  # move test statistic label slightly to the left
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))  # center the title
 ```
@@ -201,8 +209,8 @@ ggplot(data, aes(x = x, y = y)) +
        x = "t-statistic", y = "density") +
   geom_vline(xintercept = critical_value_one_sided, linetype = "solid", color = "black", linewidth = 0.5) +  # critical value (one-sided)
   geom_vline(xintercept = test_stat, linetype = "solid", color = "red", linewidth = 1) +  # test statistic line in red
-  annotate("text", x = critical_value_one_sided + 0.2, y = 0.05, label = paste("critical value:", round(critical_value_one_sided, 2)), color = "black") +
-  annotate("text", x = test_stat + 0.2, y = 0.1, label = paste("test statistic:", round(test_stat, 2)), color = "red") +  # test statistic label in red
+  annotate("text", x = critical_value_one_sided + 1.2, y = 0.2, label = paste("critical value:", round(critical_value_one_sided, 2)), color = "black") +
+  annotate("text", x = test_stat + 1.0, y = 0.1, label = paste("test statistic:", round(test_stat, 2)), color = "red") +  # test statistic label in red
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))  # center the title
 ```
@@ -242,9 +250,9 @@ ggplot(data, aes(x = x, y = y)) +
   geom_vline(xintercept = lower_bound, linetype = "solid", color = "black", linewidth = 0.5) +  # lower bound of CI
   geom_vline(xintercept = upper_bound, linetype = "solid", color = "black", linewidth = 0.5) +  # upper bound of CI
   geom_vline(xintercept = estimate, linetype = "solid", color = "red", linewidth = 1) +  # test statistic (estimate) line in red
-  annotate("text", x = lower_bound + 0.05, y = 0.05, label = paste("lower bound:", format(round(lower_bound, 3), nsmall = 3)), color = "black") +
-  annotate("text", x = upper_bound - 0.05, y = 0.05, label = paste("upper bound:", format(round(upper_bound, 3), nsmall = 3)), color = "black") +
-  annotate("text", x = estimate + 0.05, y = 0.1, label = paste("estimate:", format(round(estimate, 3), nsmall = 3)), color = "red") +  # estimate label in red
+  annotate("text", x = lower_bound - 0.05, y = 0.2, label = paste("lower bound:", format(round(lower_bound, 3), nsmall = 3)), color = "black") +
+  annotate("text", x = upper_bound + 0.05, y = 0.2, label = paste("upper bound:", format(round(upper_bound, 3), nsmall = 3)), color = "black") +
+  annotate("text", x = estimate - 0.035, y = 0.1, label = paste("estimate:", format(round(estimate, 3), nsmall = 3)), color = "red") +  # estimate label in red
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))  # center the title
 ```
@@ -316,9 +324,9 @@ ggplot(data, aes(x = x, y = y)) +
        x = "F-statistic", y = "density") +
   geom_vline(xintercept = critical_value_f, linetype = "solid", color = "black", linewidth = 0.5) +  # critical value
   geom_vline(xintercept = F_stat, linetype = "solid", color = "red", linewidth = 1) +  # test statistic in red
-  annotate("text", x = critical_value_f + 0.1, y = 0.1, label = paste("critical value:", format(round(critical_value_f, 3), nsmall = 3)), color = "black") +
-  annotate("text", x = F_stat + 0.1, y = 0.2, label = paste("test statistic:", format(round(F_stat, 3), nsmall = 3)), color = "red") +  # test statistic label in red
-  annotate("text", x = F_stat + 0.1, y = 0.15, label = paste("p-value:", format(round(p_value_f, 3), nsmall = 3)), color = "blue") +  # p-value label in blue
+  annotate("text", x = critical_value_f - 0.6, y = 0.6, label = paste("critical value:", format(round(critical_value_f, 3), nsmall = 3)), color = "black") +
+  annotate("text", x = F_stat + 0.65, y = 0.2, label = paste("test statistic:", format(round(F_stat, 3), nsmall = 3)), color = "red") +  # test statistic label in red
+  annotate("text", x = F_stat + 0.5, y = 0.05, label = paste("p-value:", format(round(p_value_f, 3), nsmall = 3)), color = "blue") +  # p-value label in blue
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))  # center the title
 ```
