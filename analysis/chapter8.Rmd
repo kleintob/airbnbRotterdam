@@ -1,9 +1,9 @@
 ---
 title: 'Chapter 8: heteroskedasticity'
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -66,7 +66,13 @@ Next, we test the null of homoskedasticity.
 bptest(estimatesFullModel)
 ```
 
-The null of homoskedasticity is rejected. 
+The null of homoskedasticity is rejected.
+
+Show results with robust standard errors.
+
+```{r}
+coeftest(estimatesFullModel, vcov=hccm)
+```
 
 Next, we do weighted least squares.
 
@@ -100,8 +106,8 @@ Finally, we use the stargazer package to show OLS results side-by-side OLS resul
 
 ```{r}
 # Calculate robust standard errors for both OLS and WLS models
-robust_se_ols <- sqrt(diag(hccm(estimatesFullModel, type = "hc0")))
-robust_se_wls <- sqrt(diag(hccm(wls_model, type = "hc0")))
+robust_se_ols <- sqrt(diag(hccm(estimatesFullModel, type = "hc3")))
+robust_se_wls <- sqrt(diag(hccm(wls_model, type = "hc3")))
 
 # Compare OLS with standard errors, OLS with robust standard errors, WLS, and WLS with robust SE
 stargazer(estimatesFullModel, estimatesFullModel, wls_model, wls_model,
@@ -111,4 +117,4 @@ stargazer(estimatesFullModel, estimatesFullModel, wls_model, wls_model,
           type = "text", keep.stat = c("n", "rsq"))
 ```
 
-This shows that standard errors are almost unchanged. If anything, they get smaller. This can in principle happen, as it does here. More often, they get bigger.
+Comparing column (1) and (2) shows that standard errors are almost unchanged. They sometimes even get smaller. This can in principle happen, as it does here. Usually, they get bigger. For the WLS estimates, standard errors are bigger when they are robust, but tentatively smaller than the robust OLS ones.

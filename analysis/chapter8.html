@@ -1682,6 +1682,21 @@ the additional assumption of homoskedasticity.</p>
 ## data:  estimatesFullModel
 ## BP = 19.232, df = 6, p-value = 0.00379</code></pre>
 <p>The null of homoskedasticity is rejected.</p>
+<p>Show results with robust standard errors.</p>
+<pre class="r"><code>coeftest(estimatesFullModel, vcov=hccm)</code></pre>
+<pre><code>## 
+## t test of coefficients:
+## 
+##                                    Estimate Std. Error t value  Pr(&gt;|t|)    
+## (Intercept)                        3.100154   0.495124  6.2614 9.558e-10 ***
+## review_scores_rating_standardized  0.049999   0.019180  2.6067  0.009471 ** 
+## accommodates                       0.216411   0.015438 14.0180 &lt; 2.2e-16 ***
+## Centrality                         0.085908   0.042210  2.0353  0.042462 *  
+## Quietness                          0.128962   0.050107  2.5737  0.010408 *  
+## Coolness                           0.096064   0.076005  1.2639  0.206973    
+## Fanciness                         -0.147651   0.058117 -2.5406  0.011432 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>Next, we do weighted least squares.</p>
 <pre class="r"><code># Obtain residuals
 residuals_full_model &lt;- residuals(estimatesFullModel)
@@ -1741,8 +1756,8 @@ squares results without and with robust standard errors. For the WLS
 estimates, in theory, one does not need them if one gets the weighting
 function right.</p>
 <pre class="r"><code># Calculate robust standard errors for both OLS and WLS models
-robust_se_ols &lt;- sqrt(diag(hccm(estimatesFullModel, type = &quot;hc0&quot;)))
-robust_se_wls &lt;- sqrt(diag(hccm(wls_model, type = &quot;hc0&quot;)))
+robust_se_ols &lt;- sqrt(diag(hccm(estimatesFullModel, type = &quot;hc3&quot;)))
+robust_se_wls &lt;- sqrt(diag(hccm(wls_model, type = &quot;hc3&quot;)))
 
 # Compare OLS with standard errors, OLS with robust standard errors, WLS, and WLS with robust SE
 stargazer(estimatesFullModel, estimatesFullModel, wls_model, wls_model,
@@ -1765,28 +1780,30 @@ stargazer(estimatesFullModel, estimatesFullModel, wls_model, wls_model,
 ##                                    (0.015)      (0.015)      (0.014)      (0.015)    
 ##                                                                                      
 ## Centrality                         0.086*       0.086**     0.104***     0.104***    
-##                                    (0.044)      (0.040)      (0.040)      (0.034)    
+##                                    (0.044)      (0.042)      (0.040)      (0.036)    
 ##                                                                                      
-## Quietness                         0.129***     0.129***     0.126***     0.126***    
-##                                    (0.045)      (0.048)      (0.043)      (0.045)    
+## Quietness                         0.129***      0.129**     0.126***      0.126**    
+##                                    (0.045)      (0.050)      (0.043)      (0.049)    
 ##                                                                                      
 ## Coolness                            0.096        0.096        0.079        0.079     
-##                                    (0.078)      (0.073)      (0.074)      (0.071)    
+##                                    (0.078)      (0.076)      (0.074)      (0.077)    
 ##                                                                                      
-## Fanciness                         -0.148***    -0.148***    -0.171***    -0.171***   
-##                                    (0.054)      (0.054)      (0.044)      (0.045)    
+## Fanciness                         -0.148***    -0.148**     -0.171***    -0.171***   
+##                                    (0.054)      (0.058)      (0.044)      (0.051)    
 ##                                                                                      
 ## Constant                          3.100***     3.100***     3.270***     3.270***    
-##                                    (0.493)      (0.476)      (0.465)      (0.449)    
+##                                    (0.493)      (0.495)      (0.465)      (0.485)    
 ##                                                                                      
 ## -------------------------------------------------------------------------------------
 ## Observations                         421          421          418          418      
 ## R2                                  0.349        0.349        0.372        0.372     
 ## =====================================================================================
 ## Note:                                                     *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
-<p>This shows that standard errors are almost unchanged. If anything,
-they get smaller. This can in principle happen, as it does here. More
-often, they get bigger.</p>
+<p>Comparing column (1) and (2) shows that standard errors are almost
+unchanged. They sometimes even get smaller. This can in principle
+happen, as it does here. Usually, they get bigger. For the WLS
+estimates, standard errors are bigger when they are robust, but
+tentatively smaller than the robust OLS ones.</p>
 
 
 
