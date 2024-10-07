@@ -83,18 +83,14 @@ Next, we do weighted least squares. First, we need to estimate the residuals fro
 residuals_full_model <- residuals(estimatesFullModel)
 ```
 
-Then, we specify that $$
-\begin{align*}
-\text{var}(u \mid \text{review_scores_rating_standardized}, \text{accommodates}, \text{Centrality}, \text{Quietness}, \text{Coolness}, \text{Fanciness}) \\
-= \sigma^2 \cdot exp(\delta_0 + \delta_1 \text{review_scores_rating_standardized} + \delta_2 \text{accommodates} \\ + \delta_3 \text{Centrality} + \delta_4 \text{Quietness} + \delta_5 \text{Coolness} + \delta_5 \text{Fanciness}).
-\end{align*}
-$$
+Then, we specify that
+\[
+\text{var}(u | x_1,x_2,x_3,x_4,x_5,x_6) = \sigma^2 \cdot exp(\delta_0 + \delta_1 x_1 + \delta_2 x_2 + \delta_3 x_4 + \delta_4 x_4 + \delta_5 x_5).
+\]
 This means that we can estimate the parameters $\delta_0, \ldots, \delta_5$ by regressing the log of the squared residuals on the explanatory variables (see slides 21 and 23):
-$$
-\begin{align*}
-\text{log}(\hat u_i^2) = \tilde \delta_0 + \delta_1 \text{review_scores_rating_standardized} + \delta_2 \text{accommodates} \\ + \delta_3 \text{Centrality} + \delta_4 \text{Quietness} + \delta_5 \text{Coolness} + \delta_5 \text{Fanciness} + w,
-\end{align*}
-$$
+\[
+\text{log}(\hat u_i^2) = \tilde \delta_0 + \delta_1 x_1 + \delta_2 x_2 + \delta_3 x_4 + \delta_4 x_4 + \delta_5 x_5 + w,
+\]
 where $\tilde \delta_0$ is equal to $\log(\sigma^2) + \delta_0$.
 
 ```{r}
