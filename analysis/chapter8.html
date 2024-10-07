@@ -1671,7 +1671,7 @@ summary(estimatesFullModel)</code></pre>
 ## Residual standard error: 0.3834 on 414 degrees of freedom
 ## Multiple R-squared:  0.3494, Adjusted R-squared:   0.34 
 ## F-statistic: 37.05 on 6 and 414 DF,  p-value: &lt; 2.2e-16</code></pre>
-<p>The reported point estimates are unbiased (Chapter 3)/consistent
+<p>The reported point estimates are unbiased (Chapter 3) and consistent
 (Chapter 5) under MLR1-MLR4. The standard errors are valid when we make
 the additional assumption of homoskedasticity.</p>
 <p>Next, we test the null of homoskedasticity.</p>
@@ -1682,7 +1682,7 @@ the additional assumption of homoskedasticity.</p>
 ## data:  estimatesFullModel
 ## BP = 19.232, df = 6, p-value = 0.00379</code></pre>
 <p>The null of homoskedasticity is rejected.</p>
-<p>Show results with robust standard errors.</p>
+<p>We can directly look at results with robust standard errors.</p>
 <pre class="r"><code>coeftest(estimatesFullModel, vcov=hccm)</code></pre>
 <pre><code>## 
 ## t test of coefficients:
@@ -1697,22 +1697,50 @@ the additional assumption of homoskedasticity.</p>
 ## Fanciness                         -0.147651   0.058117 -2.5406  0.011432 *  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<p>Next, we do weighted least squares.</p>
+<p>Some are smaller, some are bigger.</p>
+<p>Next, we do weighted least squares. First, we need to estimate the
+residuals from the full model.</p>
 <pre class="r"><code># Obtain residuals
-residuals_full_model &lt;- residuals(estimatesFullModel)
-
+residuals_full_model &lt;- residuals(estimatesFullModel)</code></pre>
+<p>Then, we specify that <span class="math display">\[
+\begin{align*}
+\text{var}(u \mid \text{review_scores_rating_standardized},
+\text{accommodates}, \text{Centrality}, \text{Quietness},
+\text{Coolness}, \text{Fanciness}) \\
+= \sigma^2 \cdot exp(\delta_0 + \delta_1
+\text{review_scores_rating_standardized} + \delta_2 \text{accommodates}
+\\ + \delta_3 \text{Centrality} + \delta_4 \text{Quietness} + \delta_5
+\text{Coolness} + \delta_5 \text{Fanciness}).
+\end{align*}
+\]</span> This means that we can estimate the parameters <span class="math inline">\(\delta_0, \ldots, \delta_5\)</span> by regressing
+the log of the squared residuals on the explanatory variables (see
+slides 21 and 23): <span class="math display">\[
+\begin{align*}
+\text{log}(\hat u_i^2) = \tilde \delta_0 + \delta_1
+\text{review_scores_rating_standardized} + \delta_2 \text{accommodates}
+\\ + \delta_3 \text{Centrality} + \delta_4 \text{Quietness} + \delta_5
+\text{Coolness} + \delta_5 \text{Fanciness} + w,
+\end{align*}
+\]</span> where <span class="math inline">\(\tilde \delta_0\)</span> is
+equal to <span class="math inline">\(\log(\sigma^2) +
+\delta_0\)</span>.</p>
+<pre class="r"><code># Step 1 was to run the regression above
 # Step 2: Regress squared residuals on predictors to model heteroskedasticity
-squared_residuals &lt;- residuals_full_model^2
-model_resid_squared &lt;- lm(squared_residuals ~ review_scores_rating_standardized + accommodates + Centrality + Quietness + Coolness + Fanciness, data = listings_clean_filtered)
-
-# Obtain fitted values from this regression
-fitted_values &lt;- fitted(model_resid_squared)
+log_squared_residuals &lt;- log(residuals_full_model^2)
+model_resid_squared &lt;- lm(log_squared_residuals ~ review_scores_rating_standardized + accommodates 
+                          + Centrality + Quietness + Coolness + Fanciness, data = listings_clean_filtered)</code></pre>
+<p>Next, we calculate the weights as the inverse of the square root of
+the fitted values from the regression above. We have to pay attention to
+also un-do taking the log of the squared residuals.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
+<pre class="r"><code># Obtain fitted values from this regression
+fitted_values &lt;- exp(fitted(model_resid_squared))
 
 # Step 3: Calculate weights as inverse of the square root of fitted values
 weights &lt;- 1 / sqrt(fitted_values)</code></pre>
-<pre><code>## Warning in sqrt(fitted_values): NaNs produced</code></pre>
+<p>Finally, we run the WLS regression with these weights.</p>
 <pre class="r"><code># Step 4: Run the WLS regression with these weights
-wls_model &lt;- lm(log(price) ~ review_scores_rating_standardized + accommodates + Centrality + Quietness + Coolness + Fanciness, 
+wls_model &lt;- lm(log(price) ~ review_scores_rating_standardized + accommodates 
+                + Centrality + Quietness + Coolness + Fanciness, 
                 data = listings_clean_filtered, weights = weights)
 
 # Summary of the WLS model
@@ -1724,32 +1752,24 @@ summary(wls_model)</code></pre>
 ##     data = listings_clean_filtered, weights = weights)
 ## 
 ## Weighted Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -2.84538 -0.41093  0.01522  0.37911  1.47203 
+##     Min      1Q  Median      3Q     Max 
+## -4.1537 -0.5811  0.0196  0.5532  2.1320 
 ## 
 ## Coefficients:
 ##                                   Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)                        3.26967    0.46508   7.030 8.64e-12 ***
-## review_scores_rating_standardized  0.05635    0.01872   3.011 0.002766 ** 
-## accommodates                       0.20550    0.01377  14.919  &lt; 2e-16 ***
-## Centrality                         0.10411    0.03976   2.618 0.009164 ** 
-## Quietness                          0.12621    0.04266   2.959 0.003266 ** 
-## Coolness                           0.07941    0.07390   1.075 0.283179    
-## Fanciness                         -0.17061    0.04430  -3.851 0.000136 ***
+## (Intercept)                        3.15303    0.49368   6.387 4.56e-10 ***
+## review_scores_rating_standardized  0.05891    0.01847   3.189  0.00154 ** 
+## accommodates                       0.20300    0.01362  14.901  &lt; 2e-16 ***
+## Centrality                         0.07760    0.04441   1.747  0.08129 .  
+## Quietness                          0.12370    0.04616   2.680  0.00766 ** 
+## Coolness                           0.09661    0.08038   1.202  0.23009    
+## Fanciness                         -0.13630    0.05086  -2.680  0.00766 ** 
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 0.6209 on 411 degrees of freedom
-##   (3 observations deleted due to missingness)
-## Multiple R-squared:  0.3722, Adjusted R-squared:  0.363 
-## F-statistic: 40.61 on 6 and 411 DF,  p-value: &lt; 2.2e-16</code></pre>
-<p>Observe the error message. It appears because some fitted values are
-negative. This can in principle happen, as we use a linear regression.
-Therefore, we “lose” some observations. In practice, one would fine-tune
-things now to avoid this. One can do that by using a more flexible
-specification for the explanatory variables, with interactions, square
-terms, and so on.</p>
-<p>We won’t do that now, for the time being.</p>
+## Residual standard error: 0.8678 on 414 degrees of freedom
+## Multiple R-squared:  0.361,  Adjusted R-squared:  0.3518 
+## F-statistic: 38.99 on 6 and 414 DF,  p-value: &lt; 2.2e-16</code></pre>
 <p>Finally, we use the stargazer package to show OLS results
 side-by-side OLS results with robust standard errors and weighted least
 squares results without and with robust standard errors. For the WLS
@@ -1773,30 +1793,30 @@ stargazer(estimatesFullModel, estimatesFullModel, wls_model, wls_model,
 ##                                      OLS    OLS (Robust SE)    WLS    WLS (Robust SE)
 ##                                      (1)          (2)          (3)          (4)      
 ## -------------------------------------------------------------------------------------
-## review_scores_rating_standardized 0.050***     0.050***     0.056***     0.056***    
-##                                    (0.019)      (0.019)      (0.019)      (0.018)    
+## review_scores_rating_standardized 0.050***     0.050***     0.059***     0.059***    
+##                                    (0.019)      (0.019)      (0.018)      (0.017)    
 ##                                                                                      
-## accommodates                      0.216***     0.216***     0.206***     0.206***    
+## accommodates                      0.216***     0.216***     0.203***     0.203***    
 ##                                    (0.015)      (0.015)      (0.014)      (0.015)    
 ##                                                                                      
-## Centrality                         0.086*       0.086**     0.104***     0.104***    
-##                                    (0.044)      (0.042)      (0.040)      (0.036)    
+## Centrality                         0.086*       0.086**      0.078*       0.078**    
+##                                    (0.044)      (0.042)      (0.044)      (0.039)    
 ##                                                                                      
-## Quietness                         0.129***      0.129**     0.126***      0.126**    
-##                                    (0.045)      (0.050)      (0.043)      (0.049)    
+## Quietness                         0.129***      0.129**     0.124***      0.124**    
+##                                    (0.045)      (0.050)      (0.046)      (0.049)    
 ##                                                                                      
-## Coolness                            0.096        0.096        0.079        0.079     
-##                                    (0.078)      (0.076)      (0.074)      (0.077)    
+## Coolness                            0.096        0.096        0.097        0.097     
+##                                    (0.078)      (0.076)      (0.080)      (0.075)    
 ##                                                                                      
-## Fanciness                         -0.148***    -0.148**     -0.171***    -0.171***   
-##                                    (0.054)      (0.058)      (0.044)      (0.051)    
+## Fanciness                         -0.148***    -0.148**     -0.136***    -0.136**    
+##                                    (0.054)      (0.058)      (0.051)      (0.057)    
 ##                                                                                      
-## Constant                          3.100***     3.100***     3.270***     3.270***    
-##                                    (0.493)      (0.495)      (0.465)      (0.485)    
+## Constant                          3.100***     3.100***     3.153***     3.153***    
+##                                    (0.493)      (0.495)      (0.494)      (0.485)    
 ##                                                                                      
 ## -------------------------------------------------------------------------------------
-## Observations                         421          421          418          418      
-## R2                                  0.349        0.349        0.372        0.372     
+## Observations                         421          421          421          421      
+## R2                                  0.349        0.349        0.361        0.361     
 ## =====================================================================================
 ## Note:                                                     *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01</code></pre>
 <p>Comparing column (1) and (2) shows that standard errors are almost
@@ -1804,6 +1824,17 @@ unchanged. They sometimes even get smaller. This can in principle
 happen, as it does here. Usually, they get bigger. For the WLS
 estimates, standard errors are bigger when they are robust, but
 tentatively smaller than the robust OLS ones.</p>
+<div class="footnotes footnotes-end-of-document">
+<hr />
+<ol>
+<li id="fn1"><p>See also Section 6-4c in the Wooldrige book on p. 205ff
+on predicting the level of the dependent variable when one runs a
+regression that has it in logs on the left hand side. This raises an
+issue related to the constant term that we can however ignore here. In
+brief, things related to the smearing factor will only affect the
+constant term, which is not important here.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
 
 
 
