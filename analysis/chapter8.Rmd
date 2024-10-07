@@ -1,0 +1,114 @@
+---
+title: 'Chapter 8: heteroskedasticity'
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+# This chunk is for initial setup
+knitr::opts_chunk$set(echo = TRUE)
+
+# Function to check and install packages
+check_install_package <- function(pkg) {
+  if (!require(pkg, character.only = TRUE)) {
+    install.packages(pkg)
+    library(pkg, character.only = TRUE)
+  }
+}
+
+# Check and install necessary packages
+#check_install_package("stargazer")
+check_install_package("dplyr")
+check_install_package("tseries")
+check_install_package("ggplot2")
+check_install_package("lmtest")
+check_install_package("car")
+check_install_package("stargazer")
+
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)  # for data manipulation
+library(lmtest)
+library(car)
+library(stargazer)
+```
+
+We start again by loading the data and filtering it so that we restrict it to properties that host at most 6 people. Also, as in Chapter 3, we again create a variable `review_scores_rating_standardized` with the standardized review score.
+
+```{r}
+# Load the datasets from the RData file
+load("../dataCreated/listings_clean.RData")
+
+listings_clean_filtered <- listings_clean %>%
+  filter(accommodates <= 6) 
+
+# Standardize review_scores_rating
+listings_clean_filtered <- listings_clean_filtered %>%
+  mutate(review_scores_rating_standardized = 
+           (review_scores_rating - mean(review_scores_rating, na.rm = TRUE)) / 
+           sd(review_scores_rating, na.rm = TRUE))
+```
+
+Our point of departure for Chapter 8 is, as for Chapter 4, the richer model from Chapter 3 where we regress the log price on `review_scores_rating`, `accommodates`, and 4 neighborhood characteristics.
+
+```{r}
+estimatesFullModel <- lm(log(price) ~ review_scores_rating_standardized + accommodates + Centrality + Quietness + Coolness + Fanciness, data = listings_clean_filtered)
+summary(estimatesFullModel)
+```
+
+The reported point estimates are unbiased (Chapter 3)/consistent (Chapter 5) under MLR1-MLR4. The standard errors are valid when we make the additional assumption of homoskedasticity.
+
+Next, we test the null of homoskedasticity.
+
+```{r}
+bptest(estimatesFullModel)
+```
+
+The null of homoskedasticity is rejected. 
+
+Next, we do weighted least squares.
+
+```{r}
+# Obtain residuals
+residuals_full_model <- residuals(estimatesFullModel)
+
+# Step 2: Regress squared residuals on predictors to model heteroskedasticity
+squared_residuals <- residuals_full_model^2
+model_resid_squared <- lm(squared_residuals ~ review_scores_rating_standardized + accommodates + Centrality + Quietness + Coolness + Fanciness, data = listings_clean_filtered)
+
+# Obtain fitted values from this regression
+fitted_values <- fitted(model_resid_squared)
+
+# Step 3: Calculate weights as inverse of the square root of fitted values
+weights <- 1 / sqrt(fitted_values)
+
+# Step 4: Run the WLS regression with these weights
+wls_model <- lm(log(price) ~ review_scores_rating_standardized + accommodates + Centrality + Quietness + Coolness + Fanciness, 
+                data = listings_clean_filtered, weights = weights)
+
+# Summary of the WLS model
+summary(wls_model)
+```
+
+Observe the error message. It appears because some fitted values are negative. This can in principle happen, as we use a linear regression. Therefore, we "lose" some observations. In practice, one would fine-tune things now to avoid this. One can do that by using a more flexible specification for the explanatory variables, with interactions, square terms, and so on.
+
+We won't do that now, for the time being.
+
+Finally, we use the stargazer package to show OLS results side-by-side OLS results with robust standard errors and weighted least squares results without and with robust standard errors. For the WLS estimates, in theory, one does not need them if one gets the weighting function right.
+
+```{r}
+# Calculate robust standard errors for both OLS and WLS models
+robust_se_ols <- sqrt(diag(hccm(estimatesFullModel, type = "hc0")))
+robust_se_wls <- sqrt(diag(hccm(wls_model, type = "hc0")))
+
+# Compare OLS with standard errors, OLS with robust standard errors, WLS, and WLS with robust SE
+stargazer(estimatesFullModel, estimatesFullModel, wls_model, wls_model,
+          se = list(NULL, robust_se_ols, NULL, robust_se_wls),
+          column.labels = c("OLS", "OLS (Robust SE)", "WLS", "WLS (Robust SE)"),
+          column.separate = c(1, 1, 1, 1),
+          type = "text", keep.stat = c("n", "rsq"))
+```
+
+This shows that standard errors are almost unchanged. If anything, they get smaller. This can in principle happen, as it does here. More often, they get bigger.
