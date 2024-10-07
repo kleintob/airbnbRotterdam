@@ -1,0 +1,383 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Chapter 8: heteroskedasticity},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Chapter 8: heteroskedasticity}
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+\maketitle
+
+We start again by loading the data and filtering it so that we restrict
+it to properties that host at most 6 people. Also, as in Chapter 3, we
+again create a variable \texttt{review\_scores\_rating\_standardized}
+with the standardized review score.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Load the datasets from the RData file}
+\FunctionTok{load}\NormalTok{(}\StringTok{"../dataCreated/listings\_clean.RData"}\NormalTok{)}
+
+\NormalTok{listings\_clean\_filtered }\OtherTok{\textless{}{-}}\NormalTok{ listings\_clean }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(accommodates }\SpecialCharTok{\textless{}=} \DecValTok{6}\NormalTok{) }
+
+\CommentTok{\# Standardize review\_scores\_rating}
+\NormalTok{listings\_clean\_filtered }\OtherTok{\textless{}{-}}\NormalTok{ listings\_clean\_filtered }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{review\_scores\_rating\_standardized =} 
+\NormalTok{           (review\_scores\_rating }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(review\_scores\_rating, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)) }\SpecialCharTok{/} 
+           \FunctionTok{sd}\NormalTok{(review\_scores\_rating, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+Our point of departure for Chapter 8 is, as for Chapter 4, the richer
+model from Chapter 3 where we regress the log price on
+\texttt{review\_scores\_rating}, \texttt{accommodates}, and 4
+neighborhood characteristics.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{estimatesFullModel }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(}\FunctionTok{log}\NormalTok{(price) }\SpecialCharTok{\textasciitilde{}}\NormalTok{ review\_scores\_rating\_standardized }\SpecialCharTok{+}\NormalTok{ accommodates }\SpecialCharTok{+}\NormalTok{ Centrality }\SpecialCharTok{+}\NormalTok{ Quietness }\SpecialCharTok{+}\NormalTok{ Coolness }\SpecialCharTok{+}\NormalTok{ Fanciness, }\AttributeTok{data =}\NormalTok{ listings\_clean\_filtered)}
+\FunctionTok{summary}\NormalTok{(estimatesFullModel)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = log(price) ~ review_scores_rating_standardized + 
+##     accommodates + Centrality + Quietness + Coolness + Fanciness, 
+##     data = listings_clean_filtered)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.48845 -0.24997  0.01026  0.23530  0.94151 
+## 
+## Coefficients:
+##                                   Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                        3.10015    0.49275   6.292    8e-10 ***
+## review_scores_rating_standardized  0.05000    0.01887   2.650  0.00837 ** 
+## accommodates                       0.21641    0.01480  14.625  < 2e-16 ***
+## Centrality                         0.08591    0.04406   1.950  0.05186 .  
+## Quietness                          0.12896    0.04451   2.897  0.00397 ** 
+## Coolness                           0.09606    0.07834   1.226  0.22079    
+## Fanciness                         -0.14765    0.05382  -2.744  0.00634 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.3834 on 414 degrees of freedom
+## Multiple R-squared:  0.3494, Adjusted R-squared:   0.34 
+## F-statistic: 37.05 on 6 and 414 DF,  p-value: < 2.2e-16
+\end{verbatim}
+
+The reported point estimates are unbiased (Chapter 3) and consistent
+(Chapter 5) under MLR1-MLR4. The standard errors are valid when we make
+the additional assumption of homoskedasticity.
+
+Next, we test the null of homoskedasticity.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{bptest}\NormalTok{(estimatesFullModel)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  studentized Breusch-Pagan test
+## 
+## data:  estimatesFullModel
+## BP = 19.232, df = 6, p-value = 0.00379
+\end{verbatim}
+
+The null of homoskedasticity is rejected.
+
+We can directly look at results with robust standard errors.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{coeftest}\NormalTok{(estimatesFullModel, }\AttributeTok{vcov=}\NormalTok{hccm)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## t test of coefficients:
+## 
+##                                    Estimate Std. Error t value  Pr(>|t|)    
+## (Intercept)                        3.100154   0.495124  6.2614 9.558e-10 ***
+## review_scores_rating_standardized  0.049999   0.019180  2.6067  0.009471 ** 
+## accommodates                       0.216411   0.015438 14.0180 < 2.2e-16 ***
+## Centrality                         0.085908   0.042210  2.0353  0.042462 *  
+## Quietness                          0.128962   0.050107  2.5737  0.010408 *  
+## Coolness                           0.096064   0.076005  1.2639  0.206973    
+## Fanciness                         -0.147651   0.058117 -2.5406  0.011432 *  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+Some are smaller, some are bigger.
+
+Next, we do weighted least squares. First, we need to estimate the
+residuals from the full model.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Obtain residuals}
+\NormalTok{residuals\_full\_model }\OtherTok{\textless{}{-}} \FunctionTok{residuals}\NormalTok{(estimatesFullModel)}
+\end{Highlighting}
+\end{Shaded}
+
+Then, we specify that \[
+\begin{align*}
+\text{var}(u \mid \text{review_scores_rating_standardized}, \text{accommodates}, \text{Centrality}, \text{Quietness}, \text{Coolness}, \text{Fanciness}) \\
+= \sigma^2 \cdot exp(\delta_0 + \delta_1 \text{review_scores_rating_standardized} + \delta_2 \text{accommodates} \\ + \delta_3 \text{Centrality} + \delta_4 \text{Quietness} + \delta_5 \text{Coolness} + \delta_5 \text{Fanciness}).
+\end{align*}
+\] This means that we can estimate the parameters
+\(\delta_0, \ldots, \delta_5\) by regressing the log of the squared
+residuals on the explanatory variables (see slides 21 and 23): \[
+\begin{align*}
+\text{log}(\hat u_i^2) = \tilde \delta_0 + \delta_1 \text{review_scores_rating_standardized} + \delta_2 \text{accommodates} \\ + \delta_3 \text{Centrality} + \delta_4 \text{Quietness} + \delta_5 \text{Coolness} + \delta_5 \text{Fanciness} + w,
+\end{align*}
+\] where \(\tilde \delta_0\) is equal to \(\log(\sigma^2) + \delta_0\).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Step 1 was to run the regression above}
+\CommentTok{\# Step 2: Regress squared residuals on predictors to model heteroskedasticity}
+\NormalTok{log\_squared\_residuals }\OtherTok{\textless{}{-}} \FunctionTok{log}\NormalTok{(residuals\_full\_model}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}
+\NormalTok{model\_resid\_squared }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(log\_squared\_residuals }\SpecialCharTok{\textasciitilde{}}\NormalTok{ review\_scores\_rating\_standardized }\SpecialCharTok{+}\NormalTok{ accommodates }
+                          \SpecialCharTok{+}\NormalTok{ Centrality }\SpecialCharTok{+}\NormalTok{ Quietness }\SpecialCharTok{+}\NormalTok{ Coolness }\SpecialCharTok{+}\NormalTok{ Fanciness, }\AttributeTok{data =}\NormalTok{ listings\_clean\_filtered)}
+\end{Highlighting}
+\end{Shaded}
+
+Next, we calculate the weights as the inverse of the square root of the
+fitted values from the regression above. We have to pay attention to
+also un-do taking the log of the squared residuals.\footnote{See also
+  Section 6-4c in the Wooldrige book on p.~205ff on predicting the level
+  of the dependent variable when one runs a regression that has it in
+  logs on the left hand side. This raises an issue related to the
+  constant term that we can however ignore here. In brief, things
+  related to the smearing factor will only affect the constant term,
+  which is not important here.}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Obtain fitted values from this regression}
+\NormalTok{fitted\_values }\OtherTok{\textless{}{-}} \FunctionTok{exp}\NormalTok{(}\FunctionTok{fitted}\NormalTok{(model\_resid\_squared))}
+
+\CommentTok{\# Step 3: Calculate weights as inverse of the square root of fitted values}
+\NormalTok{weights }\OtherTok{\textless{}{-}} \DecValTok{1} \SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(fitted\_values)}
+\end{Highlighting}
+\end{Shaded}
+
+Finally, we run the WLS regression with these weights.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Step 4: Run the WLS regression with these weights}
+\NormalTok{wls\_model }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(}\FunctionTok{log}\NormalTok{(price) }\SpecialCharTok{\textasciitilde{}}\NormalTok{ review\_scores\_rating\_standardized }\SpecialCharTok{+}\NormalTok{ accommodates }
+                \SpecialCharTok{+}\NormalTok{ Centrality }\SpecialCharTok{+}\NormalTok{ Quietness }\SpecialCharTok{+}\NormalTok{ Coolness }\SpecialCharTok{+}\NormalTok{ Fanciness, }
+                \AttributeTok{data =}\NormalTok{ listings\_clean\_filtered, }\AttributeTok{weights =}\NormalTok{ weights)}
+
+\CommentTok{\# Summary of the WLS model}
+\FunctionTok{summary}\NormalTok{(wls\_model)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = log(price) ~ review_scores_rating_standardized + 
+##     accommodates + Centrality + Quietness + Coolness + Fanciness, 
+##     data = listings_clean_filtered, weights = weights)
+## 
+## Weighted Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -4.1537 -0.5811  0.0196  0.5532  2.1320 
+## 
+## Coefficients:
+##                                   Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)                        3.15303    0.49368   6.387 4.56e-10 ***
+## review_scores_rating_standardized  0.05891    0.01847   3.189  0.00154 ** 
+## accommodates                       0.20300    0.01362  14.901  < 2e-16 ***
+## Centrality                         0.07760    0.04441   1.747  0.08129 .  
+## Quietness                          0.12370    0.04616   2.680  0.00766 ** 
+## Coolness                           0.09661    0.08038   1.202  0.23009    
+## Fanciness                         -0.13630    0.05086  -2.680  0.00766 ** 
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.8678 on 414 degrees of freedom
+## Multiple R-squared:  0.361,  Adjusted R-squared:  0.3518 
+## F-statistic: 38.99 on 6 and 414 DF,  p-value: < 2.2e-16
+\end{verbatim}
+
+Finally, we use the stargazer package to show OLS results side-by-side
+OLS results with robust standard errors and weighted least squares
+results without and with robust standard errors. For the WLS estimates,
+in theory, one does not need them if one gets the weighting function
+right.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Calculate robust standard errors for both OLS and WLS models}
+\NormalTok{robust\_se\_ols }\OtherTok{\textless{}{-}} \FunctionTok{sqrt}\NormalTok{(}\FunctionTok{diag}\NormalTok{(}\FunctionTok{hccm}\NormalTok{(estimatesFullModel, }\AttributeTok{type =} \StringTok{"hc3"}\NormalTok{)))}
+\NormalTok{robust\_se\_wls }\OtherTok{\textless{}{-}} \FunctionTok{sqrt}\NormalTok{(}\FunctionTok{diag}\NormalTok{(}\FunctionTok{hccm}\NormalTok{(wls\_model, }\AttributeTok{type =} \StringTok{"hc3"}\NormalTok{)))}
+
+\CommentTok{\# Compare OLS with standard errors, OLS with robust standard errors, WLS, and WLS with robust SE}
+\FunctionTok{stargazer}\NormalTok{(estimatesFullModel, estimatesFullModel, wls\_model, wls\_model,}
+          \AttributeTok{se =} \FunctionTok{list}\NormalTok{(}\ConstantTok{NULL}\NormalTok{, robust\_se\_ols, }\ConstantTok{NULL}\NormalTok{, robust\_se\_wls),}
+          \AttributeTok{column.labels =} \FunctionTok{c}\NormalTok{(}\StringTok{"OLS"}\NormalTok{, }\StringTok{"OLS (Robust SE)"}\NormalTok{, }\StringTok{"WLS"}\NormalTok{, }\StringTok{"WLS (Robust SE)"}\NormalTok{),}
+          \AttributeTok{column.separate =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{),}
+          \AttributeTok{type =} \StringTok{"text"}\NormalTok{, }\AttributeTok{keep.stat =} \FunctionTok{c}\NormalTok{(}\StringTok{"n"}\NormalTok{, }\StringTok{"rsq"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## =====================================================================================
+##                                                   Dependent variable:                
+##                                   ---------------------------------------------------
+##                                                       log(price)                     
+##                                      OLS    OLS (Robust SE)    WLS    WLS (Robust SE)
+##                                      (1)          (2)          (3)          (4)      
+## -------------------------------------------------------------------------------------
+## review_scores_rating_standardized 0.050***     0.050***     0.059***     0.059***    
+##                                    (0.019)      (0.019)      (0.018)      (0.017)    
+##                                                                                      
+## accommodates                      0.216***     0.216***     0.203***     0.203***    
+##                                    (0.015)      (0.015)      (0.014)      (0.015)    
+##                                                                                      
+## Centrality                         0.086*       0.086**      0.078*       0.078**    
+##                                    (0.044)      (0.042)      (0.044)      (0.039)    
+##                                                                                      
+## Quietness                         0.129***      0.129**     0.124***      0.124**    
+##                                    (0.045)      (0.050)      (0.046)      (0.049)    
+##                                                                                      
+## Coolness                            0.096        0.096        0.097        0.097     
+##                                    (0.078)      (0.076)      (0.080)      (0.075)    
+##                                                                                      
+## Fanciness                         -0.148***    -0.148**     -0.136***    -0.136**    
+##                                    (0.054)      (0.058)      (0.051)      (0.057)    
+##                                                                                      
+## Constant                          3.100***     3.100***     3.153***     3.153***    
+##                                    (0.493)      (0.495)      (0.494)      (0.485)    
+##                                                                                      
+## -------------------------------------------------------------------------------------
+## Observations                         421          421          421          421      
+## R2                                  0.349        0.349        0.361        0.361     
+## =====================================================================================
+## Note:                                                     *p<0.1; **p<0.05; ***p<0.01
+\end{verbatim}
+
+Comparing column (1) and (2) shows that standard errors are almost
+unchanged. They sometimes even get smaller. This can in principle
+happen, as it does here. Usually, they get bigger. For the WLS
+estimates, standard errors are bigger when they are robust, but
+tentatively smaller than the robust OLS ones.
+
+\end{document}
