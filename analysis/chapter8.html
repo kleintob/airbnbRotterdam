@@ -1644,7 +1644,9 @@ listings_clean_filtered &lt;- listings_clean_filtered %&gt;%
 model from Chapter 3 where we regress the log price on
 <code>review_scores_rating</code>, <code>accommodates</code>, and 4
 neighborhood characteristics.</p>
-<pre class="r"><code>estimatesFullModel &lt;- lm(log(price) ~ review_scores_rating_standardized + accommodates + Centrality + Quietness + Coolness + Fanciness, data = listings_clean_filtered)
+<pre class="r"><code>estimatesFullModel &lt;- lm(log(price) ~ review_scores_rating_standardized + accommodates 
+                         + Centrality + Quietness + Coolness + Fanciness, 
+                         data = listings_clean_filtered)
 summary(estimatesFullModel)</code></pre>
 <pre><code>## 
 ## Call:
@@ -1717,8 +1719,9 @@ equal to <span class="math inline">\(\log(\sigma^2) +
 <pre class="r"><code># Step 1 was to run the regression above
 # Step 2: Regress squared residuals on predictors to model heteroskedasticity
 log_squared_residuals &lt;- log(residuals_full_model^2)
-model_resid_squared &lt;- lm(log_squared_residuals ~ review_scores_rating_standardized + accommodates 
-                          + Centrality + Quietness + Coolness + Fanciness, data = listings_clean_filtered)</code></pre>
+model_resid_squared &lt;- lm(log_squared_residuals ~ review_scores_rating_standardized 
+                          + accommodates + Centrality + Quietness + Coolness + Fanciness, 
+                          data = listings_clean_filtered)</code></pre>
 <p>Next, we calculate the weights as the inverse of the square root of
 the fitted values from the regression above. We have to pay attention to
 also un-do taking the log of the squared residuals.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
@@ -1769,7 +1772,8 @@ function right.</p>
 robust_se_ols &lt;- sqrt(diag(hccm(estimatesFullModel, type = &quot;hc3&quot;)))
 robust_se_wls &lt;- sqrt(diag(hccm(wls_model, type = &quot;hc3&quot;)))
 
-# Compare OLS with standard errors, OLS with robust standard errors, WLS, and WLS with robust SE
+# Compare OLS with standard errors, OLS with robust standard errors, WLS, and WLS with 
+# robust SE
 stargazer(estimatesFullModel, estimatesFullModel, wls_model, wls_model,
           se = list(NULL, robust_se_ols, NULL, robust_se_wls),
           column.labels = c(&quot;OLS&quot;, &quot;OLS (Robust SE)&quot;, &quot;WLS&quot;, &quot;WLS (Robust SE)&quot;),

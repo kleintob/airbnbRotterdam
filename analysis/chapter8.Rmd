@@ -1,9 +1,9 @@
 ---
 title: 'Chapter 8: heteroskedasticity'
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -54,7 +54,9 @@ listings_clean_filtered <- listings_clean_filtered %>%
 Our point of departure for Chapter 8 is, as for Chapter 4, the richer model from Chapter 3 where we regress the log price on `review_scores_rating`, `accommodates`, and 4 neighborhood characteristics.
 
 ```{r}
-estimatesFullModel <- lm(log(price) ~ review_scores_rating_standardized + accommodates + Centrality + Quietness + Coolness + Fanciness, data = listings_clean_filtered)
+estimatesFullModel <- lm(log(price) ~ review_scores_rating_standardized + accommodates 
+                         + Centrality + Quietness + Coolness + Fanciness, 
+                         data = listings_clean_filtered)
 summary(estimatesFullModel)
 ```
 
@@ -97,8 +99,9 @@ where $\tilde \delta_0$ is equal to $\log(\sigma^2) + \delta_0$.
 # Step 1 was to run the regression above
 # Step 2: Regress squared residuals on predictors to model heteroskedasticity
 log_squared_residuals <- log(residuals_full_model^2)
-model_resid_squared <- lm(log_squared_residuals ~ review_scores_rating_standardized + accommodates 
-                          + Centrality + Quietness + Coolness + Fanciness, data = listings_clean_filtered)
+model_resid_squared <- lm(log_squared_residuals ~ review_scores_rating_standardized 
+                          + accommodates + Centrality + Quietness + Coolness + Fanciness, 
+                          data = listings_clean_filtered)
 ```
 
 Next, we calculate the weights as the inverse of the square root of the fitted values from the regression above. We have to pay attention to also un-do taking the log of the squared residuals.^[See also Section 6-4c in the Wooldrige book on p. 205ff on predicting the level of the dependent variable when one runs a regression that has it in logs on the left hand side. This raises an issue related to the constant term that we can however ignore here. In brief, things related to the smearing factor will only affect the constant term, which is not important here.]
@@ -130,7 +133,8 @@ Finally, we use the stargazer package to show OLS results side-by-side OLS resul
 robust_se_ols <- sqrt(diag(hccm(estimatesFullModel, type = "hc3")))
 robust_se_wls <- sqrt(diag(hccm(wls_model, type = "hc3")))
 
-# Compare OLS with standard errors, OLS with robust standard errors, WLS, and WLS with robust SE
+# Compare OLS with standard errors, OLS with robust standard errors, WLS, and WLS with 
+# robust SE
 stargazer(estimatesFullModel, estimatesFullModel, wls_model, wls_model,
           se = list(NULL, robust_se_ols, NULL, robust_se_wls),
           column.labels = c("OLS", "OLS (Robust SE)", "WLS", "WLS (Robust SE)"),
